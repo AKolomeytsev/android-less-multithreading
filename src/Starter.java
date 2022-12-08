@@ -1,29 +1,33 @@
 import static java.lang.Thread.sleep;
 
-public class Starter {
-    int seconds = 0;
-    public synchronized void messager1() throws InterruptedException {
-        wait(1000l);
-        //sleep(1000l);
-        seconds++;
-        System.out.println("Прошло - " + seconds + "секунд. Поток №1");
-        notify();
+public class Starter implements Runnable {
+    private final int period;
+    private int seconds = 0;
+
+    public Starter(int period) {
+        this.period = period;
     }
 
-    public synchronized void messager2() throws InterruptedException {
-        wait(5000l);
-        //sleep(5000l);
-        seconds++;
-        System.out.println("Прошло - " + seconds + "секунд. Поток №2");
-        notify();
 
+    public int getSeconds() {
+        return seconds;
     }
 
-    public synchronized void  messager3() throws InterruptedException {
-        wait(7000l);
-        sleep(7000l);
-        seconds++;
-        System.out.println("Прошло - " + seconds + "секунд. Поток №3");
-        notify();
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                sleep(period * 1000L);
+                synchronized (this) {
+                    seconds++;
+                    //System.out.println("Период - " + period + " = " +seconds + "c.");
+                    this.notifyAll();
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Starter InterruptedException");
+                e.printStackTrace();
+            }
+        }
     }
 }
